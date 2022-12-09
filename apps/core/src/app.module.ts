@@ -9,6 +9,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 import { JwtService } from './jwt/jwt.service';
 import { AuthGuard } from './user/auth/auth.guard';
+import { FormsModule as FormModule } from './forms/form.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AuthGuard } from './user/auth/auth.guard';
       inject: [ConfigService],
     }),
     UserModule,
+    FormModule,
   ],
   controllers: [AppController],
   providers: [
