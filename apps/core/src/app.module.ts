@@ -7,6 +7,8 @@ import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import * as Joi from 'joi';
+import { JwtService } from './jwt/jwt.service';
+import { AuthGuard } from './user/auth/auth.guard';
 
 @Module({
   imports: [
@@ -35,6 +37,14 @@ import * as Joi from 'joi';
     UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService, ConfigService],
+  providers: [
+    AppService,
+    ConfigService,
+    {
+      provide: AuthGuard.name,
+      useClass: AuthGuard,
+    },
+    JwtService,
+  ],
 })
 export class AppModule {}

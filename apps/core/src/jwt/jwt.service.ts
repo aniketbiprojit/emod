@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Global, Injectable } from '@nestjs/common';
 import { RoleEnum } from '../user/entities/user-role.enum';
 import { sign, verify } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
@@ -9,6 +9,7 @@ export type JWTPayload = {
   _id: string;
 };
 
+@Global()
 @Injectable()
 export class JwtService {
   constructor(private readonly _configService: ConfigService) {}

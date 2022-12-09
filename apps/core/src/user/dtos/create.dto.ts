@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { RoleEnum } from '../entities/user-role.enum';
 
-export class User {
+export class CreateUserDTO {
   @IsString()
   @IsNotEmpty()
   @Max(255)

@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  Global,
   Injectable,
   SetMetadata,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { RoleEnum } from '../entities/user-role.enum';
 
 type RequestWithUser = Request & { user: JWTPayload };
 
+@Global()
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(

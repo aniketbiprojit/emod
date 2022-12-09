@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { hashSync } from 'bcryptjs';
 import { Model } from 'mongoose';
+import { CreateUserDTO } from '../dtos/create.dto';
 import { RoleEnum } from '../entities/user-role.enum';
 import { User, UserDocument } from '../entities/user.entity';
 
@@ -29,5 +30,9 @@ export class UserRepository extends AbstractRepository<UserDocument> {
         password: hashSync(this._configService.get<string>('SU_PASSWORD')),
       });
     }
+  }
+
+  async createUser(user: CreateUserDTO) {
+    return await this.model.create(user);
   }
 }
