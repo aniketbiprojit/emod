@@ -1,8 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+  status() {
+    const { version } = JSON.parse(
+      readFileSync(
+        join(__dirname, '..', '..', '..', 'package.json'),
+      ).toString(),
+    );
+    return { status: 'ok', version: version };
   }
 }

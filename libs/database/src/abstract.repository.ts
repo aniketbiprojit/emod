@@ -34,7 +34,7 @@ export abstract class AbstractRepository<TDocument extends AbstractSchema> {
   ) {
     const document = await this.model.findOne(filterQuery, {}, {});
 
-    if (!document) {
+    if (document === null) {
       if (err) {
         throw err;
       }

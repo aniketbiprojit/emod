@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import {
   IsEmail,
   IsEnum,
@@ -13,12 +14,14 @@ export class CreateUserDTO {
   @IsNotEmpty()
   @Max(255)
   @Min(2)
+  @Expose()
   firstName: string;
 
   @IsString()
   @IsNotEmpty()
   @Max(255)
   @Min(2)
+  @Expose()
   lastName: string;
 
   @IsString()
@@ -26,11 +29,13 @@ export class CreateUserDTO {
   @IsEmail()
   @Max(255)
   @Min(2)
+  @Expose()
   email: string;
 
   @IsEnum(RoleEnum)
   @IsNotEmpty()
   @Max(255)
+  @Expose()
   role: string;
 
   @IsString()

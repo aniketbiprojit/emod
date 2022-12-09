@@ -2,6 +2,7 @@ import { AbstractSchema } from '@db/database/abstract.schema';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { RoleEnum } from './user-role.enum';
+import { Exclude } from 'class-transformer';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -29,6 +30,7 @@ export class User extends AbstractSchema {
   role: RoleEnum;
 
   @Prop()
+  @Exclude()
   password: string;
 }
 

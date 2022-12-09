@@ -12,4 +12,4 @@ import { FormsRepository } from './repositories/forms.repository';
   controllers: [FormsController],
   providers: [FormsService, FormsRepository],
 })
-export class FormsModule {}
+export class FormModule {}

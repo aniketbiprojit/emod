@@ -9,7 +9,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 import { JwtService } from './jwt/jwt.service';
 import { AuthGuard } from './user/auth/auth.guard';
-import { FormsModule as FormModule } from './forms/form.module';
+import { FormModule } from './forms/form.module';
+import { HealthService } from './health/health.service';
+import { CoreEnv } from './environment';
 
 @Module({
   imports: [
@@ -23,15 +25,16 @@ import { FormsModule as FormModule } from './forms/form.module';
         join('apps', 'core', '.env'),
       ],
       validationSchema: Joi.object({
-        PORT: Joi.number().required(),
-        MONGO_URI: Joi.string().required(),
-        JWT_SECRET: Joi.string().required(),
+        [CoreEnv.PORT]: Joi.number().required(),
+        [CoreEnv.MONGO_URI]: Joi.string().required(),
+        [CoreEnv.JWT_SECRET]: Joi.string().required(),
+        [CoreEnv.NODE_ENV]: Joi.string().required().default('development'),
       }),
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGO_URI'),
+        uri: configService.get<string>(CoreEnv.MONGO_URI),
       }),
       inject: [ConfigService],
     }),
@@ -40,6 +43,8 @@ import { FormsModule as FormModule } from './forms/form.module';
   ],
   controllers: [AppController],
   providers: [
+    HealthService,
+
     AppService,
     ConfigService,
     {

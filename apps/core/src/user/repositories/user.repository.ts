@@ -33,6 +33,9 @@ export class UserRepository extends AbstractRepository<UserDocument> {
   }
 
   async createUser(user: CreateUserDTO) {
-    return await this.model.create(user);
+    return await new this.model({
+      ...user,
+      password: hashSync(user.password),
+    }).save();
   }
 }
