@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    container_name: emod-mongo
+    environment:
+      - NODE_ENV=development
+      - TZ=Asia/Kolkata
+    ports:
+      - '37017:27017'
+    volumes:
+      - emod-persisted:/data/db
+      - ./db_dir:/var/log/mongodb/
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    command:
+      - '--logpath'
+      - '/var/log/mongodb/mongod.log'
+
+  core:
+    build:
+      context: .
+      dockerfile: ./apps/core/Dockerfile
+      target: development
+    command: npm run start:dev core
+    container_name: emod-core
+    depends_on:
+      - mongo
+    ports:
+      - '8080:8080'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - TZ=Asia/Kolkata
+      - USE_DOCKER=true
+    restart: always
+
+volumes:
+  emod-persisted:
+    external: true
