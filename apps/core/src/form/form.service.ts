@@ -21,13 +21,17 @@ export class FormService {
     });
   }
 
-  async getForm(id: string) {
-    await this._formRepository.existsOrThrow(
+  async getFormById(id: string) {
+    const form = await this._formRepository.existsOrThrow(
       { _id: id },
       new NotFoundException('Form not found'),
     );
 
-    return await this._formRepository.getForm(id);
+    return {
+      // populated
+      form: await this._formRepository.getForm(id),
+      formData: this._localStorageService.readJSON(form.location),
+    };
   }
 
   async getForms(query: any = {}, paginated?: PaginationQueryDTO) {

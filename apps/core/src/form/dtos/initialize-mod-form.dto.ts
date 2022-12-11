@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNotEmptyObject,
@@ -9,6 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+@Expose()
 export class ModDTO {
   @IsString()
   @IsNotEmpty()

@@ -1,10 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as Joi from 'joi';
-import { join } from 'path';
 import { HealthService } from '../src/health/health.service';
 import { CoreEnv } from '../src/environment';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -16,6 +13,8 @@ import { JwtService } from '../src/jwt/jwt.service';
 import { AuthGuard } from '../src/user/auth/auth.guard';
 import { RoleEnum } from '../src/user/entities/user-role.enum';
 import { InitializeFormDTO } from '../src/form/dtos/initialize-mod-form.dto';
+import { tmpdir } from 'os';
+import { formTestData } from './test-data';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -33,7 +32,7 @@ describe('AppController (e2e)', () => {
               [CoreEnv.MONGO_URI]: 'mongodb://localhost:27017/e-mod-test',
               [CoreEnv.JWT_SECRET]: 'secret',
               [CoreEnv.NODE_ENV]: 'testing',
-              [CoreEnv.STORAGE_LOCATION]: join('storage'),
+              [CoreEnv.STORAGE_LOCATION]: tmpdir(),
               SU_FIRST_NAME: 'Super',
               SU_LAST_NAME: 'Admin',
               SU_EMAIL: 'su@mail.com',
@@ -233,17 +232,7 @@ describe('AppController (e2e)', () => {
       .post('/form/create')
       .set('Authorization', `Bearer ${suToken}`)
       .send({
-        formData: {
-          allocationAmount: 100_000,
-          budgetCode: '31.12',
-          amountSpent: 22_000,
-          title: 'New request for authorization of expenditure',
-          description: `Purpose: SASTRA is section-8 company of Rashtriya Raksha University. we have required SASTRA’S website as outreach events is going in full pace both physically and digitally, considering that a website is required to be hosted with basic pages and design alignments so that stakeholders can find us easily on the web along with a positive web identity. We have booked domain for this website- SASTRA.NET.IN and we will be processing for a basic website with one time cost with 6 months of changes and support.`,
-          serviceCost: 22_000,
-          serviceName: 'Test Services',
-          sourceOfFunding: 'DIIS: 31.12 Office Expenses\n\nIT',
-          remarks: { Original: 'School Office' },
-        },
+        formData: formTestData,
         name: 'Test Form',
       } as InitializeFormDTO)
       .expect(201);
@@ -253,7 +242,8 @@ describe('AppController (e2e)', () => {
   it('/form (GET)', async () => {
     const response = await request(app.getHttpServer())
       .get('/form')
-      .set('Authorization', `Bearer ${suToken}`);
+      .set('Authorization', `Bearer ${suToken}`)
+      .expect(200);
     expect(response.body).toEqual({
       forms: [
         {
@@ -274,6 +264,14 @@ describe('AppController (e2e)', () => {
         },
       ],
     });
+  });
+
+  it('/form/:id (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/form/' + formId)
+      .set('Authorization', `Bearer ${suToken}`)
+      .expect(200);
+    console.log(response.body);
   });
 
   afterAll(async () => {
