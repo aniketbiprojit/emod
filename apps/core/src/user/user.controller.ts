@@ -38,13 +38,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @MongooseClassSerializerInterceptor(CreateUserDTO)
   async users(
-    @Query(
-      new ValidationPipe({
-        transform: true,
-        transformOptions: { enableImplicitConversion: true },
-        forbidNonWhitelisted: true,
-      }),
-    )
+    @Query()
     query: UserQueryDTO,
   ) {
     const users = await this._userService.getUsers(query);

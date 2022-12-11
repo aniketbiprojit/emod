@@ -4,43 +4,43 @@ import {
   IsEnum,
   IsNotEmpty,
   IsString,
-  Max,
-  Min,
+  MaxLength,
+  MinLength,
 } from 'class-validator';
 import { RoleEnum } from '../entities/user-role.enum';
 
 export class CreateUserDTO {
   @IsString()
   @IsNotEmpty()
-  @Max(255)
-  @Min(2)
+  @MaxLength(255)
+  @MinLength(2)
   @Expose()
   firstName: string;
 
   @IsString()
   @IsNotEmpty()
-  @Max(255)
-  @Min(2)
+  @MaxLength(255)
+  @MinLength(2)
   @Expose()
   lastName: string;
 
   @IsString()
   @IsNotEmpty()
   @IsEmail()
-  @Max(255)
-  @Min(2)
+  @MaxLength(255)
+  @MinLength(2)
   @Expose()
   email: string;
 
   @IsEnum(RoleEnum)
   @IsNotEmpty()
-  @Max(255)
+  @MaxLength(255)
   @Expose()
   role: string;
 
   @IsString()
-  @Min(8)
-  @Max(255)
+  @MinLength(8)
+  @MaxLength(255)
   @IsNotEmpty()
   password: string;
 }

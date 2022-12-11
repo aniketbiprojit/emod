@@ -9,7 +9,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 import { JwtService } from './jwt/jwt.service';
 import { AuthGuard } from './user/auth/auth.guard';
-import { FormModule } from './forms/form.module';
+import { FormModule } from './form/form.module';
 import { HealthService } from './health/health.service';
 import { CoreEnv } from './environment';
 

@@ -11,7 +11,14 @@ async function bootstrap() {
   const port = configService.get<number>(CoreEnv.PORT);
   console.log(`Listening on port ${port}...`);
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+      forbidNonWhitelisted: true,
+    }),
+  );
+  await app.init();
 
   await app.listen(port);
 }
