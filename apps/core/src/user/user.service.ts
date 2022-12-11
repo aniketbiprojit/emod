@@ -11,6 +11,7 @@ import { CoreEnv } from '../environment';
 import { JwtService } from '../jwt/jwt.service';
 import { CreateUserDTO } from './dtos/create.dto';
 import { LoginDto } from './dtos/login.dto';
+import { UserQueryDTO } from './dtos/users-query.dto';
 import { UserRepository } from './repositories/user.repository';
 
 @Injectable()
@@ -48,6 +49,11 @@ export class UserService implements OnModuleInit {
       throw new BadRequestException('User already exists.');
     }
     return await this._userRepository.createUser(user);
+  }
+
+  async getUsers(query: UserQueryDTO) {
+    const { page, pageSize, ...args } = query;
+    return await this._userRepository.find({ ...args }, { page, pageSize });
   }
 
   async onModuleInit() {

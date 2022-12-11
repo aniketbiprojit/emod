@@ -4,4 +4,5 @@ export enum RoleEnum {
   Director = 'Director',
   Registrar = 'Registrar',
   FinanceOfficer = 'FinanceOfficer',
+  VC = 'VC',
 }

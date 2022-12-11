@@ -1,4 +1,5 @@
 import { Logger, NotFoundException } from '@nestjs/common';
+import { PaginationQueryDTO } from 'apps/core/src/user/dtos/pagination.dto';
 import { FilterQuery, Model, Types, UpdateQuery, SaveOptions } from 'mongoose';
 import { AbstractSchema } from './abstract.schema';
 
@@ -70,7 +71,17 @@ export abstract class AbstractRepository<TDocument extends AbstractSchema> {
     });
   }
 
-  async find(filterQuery: FilterQuery<TDocument>) {
-    return this.model.find(filterQuery, {}, { lean: true });
+  async find(
+    filterQuery: FilterQuery<TDocument>,
+    paginated?: PaginationQueryDTO,
+  ) {
+    return this.model.find(
+      filterQuery,
+      { __v: false },
+      {
+        skip: paginated?.pageSize * (paginated?.page - 1),
+        limit: paginated?.pageSize,
+      },
+    );
   }
 }

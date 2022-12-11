@@ -1,8 +1,17 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { MongooseClassSerializerInterceptor } from '../interceptors/mongoose-class.interceptor';
 import { AuthGuard, Roles } from './auth/auth.guard';
 import { CreateUserDTO } from './dtos/create.dto';
 import { LoginDto } from './dtos/login.dto';
+import { UserQueryDTO } from './dtos/users-query.dto';
 import { RoleEnum } from './entities/user-role.enum';
 import { UserService } from './user.service';
 
@@ -27,5 +36,18 @@ export class UserController {
 
   @Get('users')
   @UseGuards(AuthGuard)
-  async users(@Query('role') role: Exclude<RoleEnum, RoleEnum.SuperAdmin>) {}
+  @MongooseClassSerializerInterceptor(CreateUserDTO)
+  async users(
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+        forbidNonWhitelisted: true,
+      }),
+    )
+    query: UserQueryDTO,
+  ) {
+    const users = await this._userService.getUsers(query);
+    return users;
+  }
 }

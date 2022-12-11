@@ -82,25 +82,97 @@ describe('AppController (e2e)', () => {
     suToken = response.body.token;
   });
 
-  it('/user/create', async () => {
-    const response = await request(app.getHttpServer())
-      .post('/user/create')
-      .set('Authorization', `Bearer ${suToken}`)
-      .send({
+  describe('/user/create (POST)', () => {
+    it('create admin officer', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/user/create')
+        .set('Authorization', `Bearer ${suToken}`)
+        .send({
+          email: 'admin-officer@mail.com',
+          password: 'password',
+          firstName: 'Admin',
+          lastName: 'Officer',
+          role: RoleEnum.AdminOfficer,
+        })
+        .expect(201);
+      expect(response.body).toEqual({
         email: 'admin-officer@mail.com',
-        password: 'password',
         firstName: 'Admin',
         lastName: 'Officer',
-        role: RoleEnum.AdminOfficer,
-      })
-      .expect(201);
-    expect(response.body).toEqual({
-      email: 'admin-officer@mail.com',
-      firstName: 'Admin',
-      lastName: 'Officer',
-      role: 'AdminOfficer',
+        role: 'AdminOfficer',
+      });
+    });
+
+    it('create director', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/user/create')
+        .set('Authorization', `Bearer ${suToken}`)
+        .send({
+          email: 'director@mail.com',
+          password: 'password',
+          firstName: 'Director',
+          lastName: 'Wing',
+          role: RoleEnum.Director,
+        })
+        .expect(201);
+      expect(response.body).toEqual({
+        email: 'director@mail.com',
+        firstName: 'Director',
+        lastName: 'Wing',
+        role: 'Director',
+      });
+    });
+
+    it('create registrar', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/user/create')
+        .set('Authorization', `Bearer ${suToken}`)
+        .send({
+          email: 'registrar@mail.com',
+          password: 'password',
+          firstName: 'Registrar',
+          lastName: 'Office',
+          role: RoleEnum.Registrar,
+        })
+        .expect(201);
+      expect(response.body).toEqual({
+        email: 'registrar@mail.com',
+        firstName: 'Registrar',
+        lastName: 'Office',
+        role: 'Registrar',
+      });
+    });
+
+    it('create finance officer', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/user/create')
+        .set('Authorization', `Bearer ${suToken}`)
+        .send({
+          email: 'finance-officer@mail.com',
+          password: 'password',
+          firstName: 'Finance',
+          lastName: 'Office',
+          role: RoleEnum.FinanceOfficer,
+        })
+        .expect(201);
+      expect(response.body).toEqual({
+        email: 'finance-officer@mail.com',
+        firstName: 'Finance',
+        lastName: 'Office',
+        role: 'FinanceOfficer',
+      });
     });
   });
+
+  it('/user/users (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/user/users?role=AdminOfficer')
+      .set('Authorization', `Bearer ${suToken}`)
+      .expect(200);
+    expect(response.body).toBeDefined();
+    expect(response.body[0]).toBeDefined();
+    expect(response.body[0].firstName).toEqual('Admin');
+  }, 5_000);
 
   afterAll(async () => {
     const healthService = app.get<HealthService>(HealthService);
