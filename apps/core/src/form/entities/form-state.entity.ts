@@ -1,5 +1,6 @@
 import { AbstractSchema } from '@db/database/abstract.schema';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Expose, Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '../../user/entities/user.entity';
 
@@ -15,12 +16,15 @@ export class FormState extends AbstractSchema {
     ref: 'User',
     required: true,
   })
+  @Type(() => User)
+  @Expose()
   from: User;
 
   @Prop({
     type: mongoose.Types.ObjectId,
     ref: 'User',
   })
+  @Expose()
   to?: string;
 }
 

@@ -33,6 +33,7 @@ describe('AppController (e2e)', () => {
               [CoreEnv.MONGO_URI]: 'mongodb://localhost:27017/e-mod-test',
               [CoreEnv.JWT_SECRET]: 'secret',
               [CoreEnv.NODE_ENV]: 'testing',
+              [CoreEnv.STORAGE_LOCATION]: join('storage'),
               SU_FIRST_NAME: 'Super',
               SU_LAST_NAME: 'Admin',
               SU_EMAIL: 'su@mail.com',
@@ -180,10 +181,10 @@ describe('AppController (e2e)', () => {
       .expect(200);
     expect(response.body).toBeDefined();
     expect(response.body[0]).toBeDefined();
-    expect(response.body[0].email).toEqual('admin-officer@mail.com');
-    expect(response.body[1].email).toEqual('director@mail.com');
-    expect(response.body[2].email).toEqual('registrar@mail.com');
-    expect(response.body[3].email).toEqual('finance-officer@mail.com');
+    expect(response.body[3].email).toEqual('admin-officer@mail.com');
+    expect(response.body[2].email).toEqual('director@mail.com');
+    expect(response.body[1].email).toEqual('registrar@mail.com');
+    expect(response.body[0].email).toEqual('finance-officer@mail.com');
   }, 5_000);
 
   it('/user/users (GET)', async () => {
@@ -218,10 +219,14 @@ describe('AppController (e2e)', () => {
         'formData.serviceCost should not be empty',
         'formData.serviceCost must be a number conforming to the specified constraints',
         'formData.sourceOfFunding must be a string',
+        'name should not be empty',
+        'name must be a string',
       ],
       error: 'Bad Request',
     });
   });
+
+  let formId = '';
 
   it('/form/create (POST)', async () => {
     const response = await request(app.getHttpServer())
@@ -239,8 +244,36 @@ describe('AppController (e2e)', () => {
           sourceOfFunding: 'DIIS: 31.12 Office Expenses\n\nIT',
           remarks: { Original: 'School Office' },
         },
+        name: 'Test Form',
       } as InitializeFormDTO)
       .expect(201);
+    formId = response.body._id;
+  });
+
+  it('/form (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/form')
+      .set('Authorization', `Bearer ${suToken}`);
+    expect(response.body).toEqual({
+      forms: [
+        {
+          formState: [
+            {
+              from: {
+                firstName: 'Super',
+                lastName: 'Admin',
+                email: 'su@mail.com',
+                role: 'SuperAdmin',
+              },
+            },
+          ],
+          name: 'Test Form',
+          type: 'MOD',
+          rejected: false,
+          rejectedReason: '',
+        },
+      ],
+    });
   });
 
   afterAll(async () => {

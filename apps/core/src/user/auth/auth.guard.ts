@@ -1,5 +1,6 @@
 import {
   CanActivate,
+  createParamDecorator,
   ExecutionContext,
   Global,
   Injectable,
@@ -61,3 +62,10 @@ export class AuthGuard implements CanActivate {
 }
 
 export const Roles = (...roles: RoleEnum[]) => SetMetadata('roles', roles);
+
+export const UserParam = createParamDecorator(
+  (_data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return request.user;
+  },
+);

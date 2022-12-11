@@ -56,4 +56,8 @@ export class InitializeFormDTO {
   @IsNotEmpty()
   @IsNotEmptyObject()
   formData: ModDTO;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 }

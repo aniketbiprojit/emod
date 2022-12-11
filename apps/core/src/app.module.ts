@@ -29,6 +29,7 @@ import { CoreEnv } from './environment';
         [CoreEnv.MONGO_URI]: Joi.string().required(),
         [CoreEnv.JWT_SECRET]: Joi.string().required(),
         [CoreEnv.NODE_ENV]: Joi.string().required().default('development'),
+        [CoreEnv.STORAGE_LOCATION]: Joi.string().default(join('storage')),
       }),
     }),
     MongooseModule.forRootAsync({

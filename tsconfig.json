@@ -23,6 +23,12 @@
       ],
       "@db/database/*": [
         "libs/database/src/*"
+      ],
+      "@storage/local-storage": [
+        "libs/local-storage/src"
+      ],
+      "@storage/local-storage/*": [
+        "libs/local-storage/src/*"
       ]
     }
   }

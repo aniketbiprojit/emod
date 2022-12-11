@@ -81,6 +81,7 @@ export abstract class AbstractRepository<TDocument extends AbstractSchema> {
       {
         skip: paginated?.pageSize * (paginated?.page - 1),
         limit: paginated?.pageSize,
+        sort: { createdAt: -1, updatedAt: -1 },
       },
     );
   }
