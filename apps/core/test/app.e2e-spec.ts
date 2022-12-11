@@ -256,61 +256,87 @@ describe('AppController (e2e)', () => {
 
   let formId = '';
 
-  it('/form/create (POST)', async () => {
-    const token = await login(admin);
-    const response = await request(app.getHttpServer())
-      .post('/form/create')
-      .set('Authorization', `Bearer ${token}`)
-      .send({
-        formData: formTestData,
-        name: 'Test Form',
-      } as InitializeFormDTO)
-      .expect(201);
-    formId = response.body._id;
+  describe('form creation and fetching', () => {
+    it('/form/create (POST)', async () => {
+      const token = await login(admin);
+      const response = await request(app.getHttpServer())
+        .post('/form/create')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          formData: formTestData,
+          name: 'Test Form',
+        } as InitializeFormDTO)
+        .expect(201);
+      formId = response.body._id;
+    });
+
+    it('/form (GET)', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/form')
+        .set('Authorization', `Bearer ${suToken}`)
+        .expect(200);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          forms: expect.arrayContaining([
+            expect.objectContaining({
+              name: 'Test Form',
+              type: 'MOD',
+              rejected: false,
+              rejectedReason: '',
+            }),
+          ]),
+        }),
+      );
+    });
+
+    it('/form/:id (GET)', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/form/' + formId)
+        .set('Authorization', `Bearer ${suToken}`)
+        .expect(200);
+    });
+
+    it('/form/:id (PUT)', async () => {
+      const token = await login(admin);
+      const response = await request(app.getHttpServer())
+        .put('/form/' + formId)
+        .send({
+          toUser: director._id,
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+      const form = response.body.form as Form;
+      const adminEmail = form.formState[0].from.email;
+      expect(adminEmail).toEqual(admin.email);
+      const directorEmail = form.formState[0].to!.email;
+      expect(directorEmail).toEqual(director.email);
+      const updatedByEmail = form.formState[0].updatedBy!.email;
+      expect(updatedByEmail).toEqual(admin.email);
+    });
   });
 
-  it('/form (GET)', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/form')
-      .set('Authorization', `Bearer ${suToken}`)
-      .expect(200);
-    expect(response.body).toEqual(
-      expect.objectContaining({
-        forms: expect.arrayContaining([
-          expect.objectContaining({
-            name: 'Test Form',
-            type: 'MOD',
-            rejected: false,
-            rejectedReason: '',
-          }),
-        ]),
-      }),
-    );
-  });
+  describe('complete form', () => {
+    it('/form/:id (PUT) by director', async () => {
+      const token = await login(director);
+      await request(app.getHttpServer())
+        .put('/form/' + formId)
+        .send({
+          toUser: registrar._id,
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+    });
 
-  it('/form/:id (GET)', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/form/' + formId)
-      .set('Authorization', `Bearer ${suToken}`)
-      .expect(200);
-  });
-
-  it('/form/:id (PUT)', async () => {
-    const token = await login(admin);
-    const response = await request(app.getHttpServer())
-      .put('/form/' + formId)
-      .send({
-        toUser: director._id,
-      })
-      .set('Authorization', `Bearer ${token}`)
-      .expect(200);
-    const form = response.body.form as Form;
-    const adminEmail = form.formState[0].from.email;
-    expect(adminEmail).toEqual(admin.email);
-    const directorEmail = form.formState[0].to!.email;
-    expect(directorEmail).toEqual(director.email);
-    const updatedByEmail = form.formState[0].updatedBy!.email;
-    expect(updatedByEmail).toEqual(admin.email);
+    it('/form/:id (PUT) by registrar', async () => {
+      const token = await login(registrar);
+      await request(app.getHttpServer())
+        .put('/form/' + formId)
+        .send({
+          toUser: finance._id,
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+    });
   });
 
   afterAll(async () => {
