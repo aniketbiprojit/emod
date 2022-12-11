@@ -7,5 +7,5 @@ export const formTestData = {
   serviceCost: 22_000,
   serviceName: 'Test Services',
   sourceOfFunding: 'DIIS: 31.12 Office Expenses\n\nIT',
-  extras: { Original: 'School Office' },
+  otherFields: { Original: 'School Office' },
 };

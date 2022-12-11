@@ -49,7 +49,7 @@ export class ModDTO {
 
   @IsObject()
   @IsOptional()
-  extras?: Record<string, any>;
+  otherFields?: Record<string, any>;
 }
 
 export class InitializeFormDTO {
