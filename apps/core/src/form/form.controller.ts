@@ -17,6 +17,7 @@ import { User } from '../user/entities/user.entity';
 import { CreatedFormsDTO } from './dtos/created-form.dto';
 import { GetFormDTO } from './dtos/get-form.dto';
 import { InitializeFormDTO } from './dtos/initialize-mod-form.dto';
+import { RejectFormDTO } from './dtos/reject-form.dto';
 import { UpdateStateDTO } from './dtos/update-state.dto';
 import { Form } from './entities/form.entitiy';
 import { FormService } from './form.service';
@@ -56,5 +57,15 @@ export class FormController {
     @Body() data: UpdateStateDTO,
   ) {
     return await this._formService.updateState(id, data.toUser, updatedBy);
+  }
+
+  @Put('/reject/:id')
+  @UseGuards(AuthGuard, CanUpdateFormGuard)
+  @MongooseClassSerializerInterceptor(GetFormDTO)
+  async reject(
+    @Param('id') id: string,
+    @Body() { rejectedReason }: RejectFormDTO,
+  ) {
+    return await this._formService.reject(id, rejectedReason);
   }
 }

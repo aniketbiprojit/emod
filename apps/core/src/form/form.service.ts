@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { LocalStorageService } from '@storage/local-storage/local-storage.service';
 import { PaginationQueryDTO } from '../user/dtos/pagination.dto';
 import { User } from '../user/entities/user.entity';
@@ -52,5 +56,28 @@ export class FormService {
       form: form,
       formData: this._localStorageService.readJSON(form.location),
     };
+  }
+
+  async reject(id: string, rejectedReason: string) {
+    const form = await this._formRepository.existsOrThrow(
+      { _id: id },
+      new NotFoundException('Form not found'),
+    );
+
+    if (form.rejected) {
+      throw new BadRequestException('Form already rejected');
+    }
+
+    await this._formRepository.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        $set: {
+          rejected: true,
+          rejectedReason,
+        },
+      },
+    );
   }
 }
