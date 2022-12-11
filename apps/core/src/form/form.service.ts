@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { LocalStorageService } from '@storage/local-storage/local-storage.service';
 import { PaginationQueryDTO } from '../user/dtos/pagination.dto';
 import { User } from '../user/entities/user.entity';
+import { UserService } from '../user/user.service';
 import { InitializeFormDTO } from './dtos/initialize-mod-form.dto';
 import { FormRepository } from './repositories/form.repository';
 
@@ -9,6 +10,7 @@ import { FormRepository } from './repositories/form.repository';
 export class FormService {
   constructor(
     private readonly _formRepository: FormRepository,
+    private readonly _userService: UserService,
     private readonly _localStorageService: LocalStorageService,
   ) {}
 
@@ -29,12 +31,26 @@ export class FormService {
 
     return {
       // populated
-      form: await this._formRepository.getForm(id),
+      form: (await this._formRepository.getForm(id)).toJSON(),
       formData: this._localStorageService.readJSON(form.location),
     };
   }
 
   async getForms(query: any = {}, paginated?: PaginationQueryDTO) {
     return { forms: await this._formRepository.findAll(query, paginated) };
+  }
+
+  async updateState(formId: string, toUserId: string, updatedBy: User) {
+    const toUser = await this._userService.getUserById(toUserId);
+
+    const form = await this._formRepository.updateState(
+      formId,
+      toUser,
+      updatedBy,
+    );
+    return {
+      form: form,
+      formData: this._localStorageService.readJSON(form.location),
+    };
   }
 }

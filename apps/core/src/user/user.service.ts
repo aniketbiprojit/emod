@@ -50,6 +50,11 @@ export class UserService implements OnModuleInit {
     }
     return await this._userRepository.createUser(user);
   }
+  async getUserById(userId: string) {
+    return await this._userRepository.existsOrThrow({
+      _id: userId,
+    });
+  }
 
   async getUsers(query: UserQueryDTO) {
     const { page, pageSize, ...args } = query;

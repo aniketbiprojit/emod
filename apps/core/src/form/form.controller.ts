@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
   ValidationPipe,
@@ -16,8 +17,10 @@ import { User } from '../user/entities/user.entity';
 import { CreatedFormsDTO } from './dtos/created-form.dto';
 import { GetFormDTO } from './dtos/get-form.dto';
 import { InitializeFormDTO } from './dtos/initialize-mod-form.dto';
+import { UpdateStateDTO } from './dtos/update-state.dto';
 import { Form } from './entities/form.entitiy';
 import { FormService } from './form.service';
+import { CanUpdateFormGuard } from './guards/form.guard';
 
 @Controller('form')
 export class FormController {
@@ -38,9 +41,20 @@ export class FormController {
   }
 
   @Get('/:id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, CanUpdateFormGuard)
   @MongooseClassSerializerInterceptor(GetFormDTO)
   async getById(@Param('id') id: string) {
     return await this._formService.getFormById(id);
+  }
+
+  @Put('/:id')
+  @UseGuards(AuthGuard, CanUpdateFormGuard)
+  @MongooseClassSerializerInterceptor(GetFormDTO)
+  async updateState(
+    @UserParam() updatedBy: User,
+    @Param('id') id: string,
+    @Body() data: UpdateStateDTO,
+  ) {
+    return await this._formService.updateState(id, data.toUser, updatedBy);
   }
 }

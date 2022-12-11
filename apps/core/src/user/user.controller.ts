@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { MongooseClassSerializerInterceptor } from '../interceptors/mongoose-class.interceptor';
 import { AuthGuard, Roles } from './auth/auth.guard';
-import { CreateUserDTO } from './dtos/create.dto';
+import { CreateUserDTO, GetUserDTO } from './dtos/create.dto';
 import { LoginDto } from './dtos/login.dto';
 import { UserQueryDTO } from './dtos/users-query.dto';
 import { RoleEnum } from './entities/user-role.enum';
@@ -29,7 +29,7 @@ export class UserController {
   @Post('create')
   @UseGuards(AuthGuard)
   @Roles(RoleEnum.SuperAdmin)
-  @MongooseClassSerializerInterceptor(CreateUserDTO)
+  @MongooseClassSerializerInterceptor(GetUserDTO)
   async create(@Body() user: CreateUserDTO) {
     return await this._userService.createUser(user);
   }

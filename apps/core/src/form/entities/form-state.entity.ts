@@ -24,8 +24,17 @@ export class FormState extends AbstractSchema {
     type: mongoose.Types.ObjectId,
     ref: 'User',
   })
+  @Type(() => User)
   @Expose()
-  to?: string;
+  to?: User;
+
+  @Prop({
+    type: mongoose.Types.ObjectId,
+    ref: 'User',
+  })
+  @Type(() => User)
+  @Expose()
+  updatedBy?: User;
 }
 
 export const FormStateSchema = SchemaFactory.createForClass(FormState);

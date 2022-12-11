@@ -15,7 +15,8 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       transformOptions: { enableImplicitConversion: true },
-      forbidNonWhitelisted: true,
+      forbidNonWhitelisted: false,
+      whitelist: true,
     }),
   );
   await app.init();

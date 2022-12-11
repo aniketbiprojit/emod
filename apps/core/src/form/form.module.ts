@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { LocalStorageModule } from '@storage/local-storage/local-storage.module';
 import { LocalStorageService } from '@storage/local-storage/local-storage.service';
 import { JwtService } from '../jwt/jwt.service';
+import { UserModule } from '../user/user.module';
 import { FormState, FormStateSchema } from './entities/form-state.entity';
 import { Form, FormSchema } from './entities/form.entitiy';
 import { FormController } from './form.controller';
@@ -16,6 +17,7 @@ import { FormRepository } from './repositories/form.repository';
       { name: FormState.name, schema: FormStateSchema },
     ]),
     LocalStorageModule,
+    UserModule,
   ],
   controllers: [FormController],
   providers: [FormService, FormRepository, JwtService, LocalStorageService],
