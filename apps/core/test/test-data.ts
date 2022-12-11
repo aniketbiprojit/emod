@@ -9,3 +9,28 @@ export const formTestData = {
   sourceOfFunding: 'DIIS: 31.12 Office Expenses\n\nIT',
   otherFields: { Original: 'School Office' },
 };
+
+export const formFailMessage = {
+  statusCode: 400,
+  message: [
+    'formData.budgetCode must be shorter than or equal to 255 characters',
+    'formData.budgetCode should not be empty',
+    'formData.budgetCode must be a string',
+    'formData.allocationAmount should not be empty',
+    'formData.allocationAmount must be a number conforming to the specified constraints',
+    'formData.amountSpent should not be empty',
+    'formData.amountSpent must be a number conforming to the specified constraints',
+    'formData.title must be shorter than or equal to 255 characters',
+    'formData.title should not be empty',
+    'formData.title must be a string',
+    'formData.serviceName must be shorter than or equal to 255 characters',
+    'formData.serviceName should not be empty',
+    'formData.serviceName must be a string',
+    'formData.serviceCost should not be empty',
+    'formData.serviceCost must be a number conforming to the specified constraints',
+    'formData.sourceOfFunding must be a string',
+    'name should not be empty',
+    'name must be a string',
+  ],
+  error: 'Bad Request',
+};

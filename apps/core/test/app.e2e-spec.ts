@@ -14,7 +14,7 @@ import { AuthGuard } from '../src/user/auth/auth.guard';
 import { RoleEnum } from '../src/user/entities/user-role.enum';
 import { InitializeFormDTO } from '../src/form/dtos/initialize-mod-form.dto';
 import { tmpdir } from 'os';
-import { formTestData } from './test-data';
+import { formFailMessage, formTestData } from './test-data';
 import { Form } from '../src/form/entities/form.entitiy';
 
 describe('AppController (e2e)', () => {
@@ -222,41 +222,18 @@ describe('AppController (e2e)', () => {
       .expect(400);
   });
 
-  it('/form/create (POST)', async () => {
-    const response = await request(app.getHttpServer())
-      .post('/form/create')
-      .set('Authorization', `Bearer ${suToken}`)
-      .send({ formData: {} })
-      .expect(400);
-    expect(response.body).toEqual({
-      statusCode: 400,
-      message: [
-        'formData.budgetCode must be shorter than or equal to 255 characters',
-        'formData.budgetCode should not be empty',
-        'formData.budgetCode must be a string',
-        'formData.allocationAmount should not be empty',
-        'formData.allocationAmount must be a number conforming to the specified constraints',
-        'formData.amountSpent should not be empty',
-        'formData.amountSpent must be a number conforming to the specified constraints',
-        'formData.title must be shorter than or equal to 255 characters',
-        'formData.title should not be empty',
-        'formData.title must be a string',
-        'formData.serviceName must be shorter than or equal to 255 characters',
-        'formData.serviceName should not be empty',
-        'formData.serviceName must be a string',
-        'formData.serviceCost should not be empty',
-        'formData.serviceCost must be a number conforming to the specified constraints',
-        'formData.sourceOfFunding must be a string',
-        'name should not be empty',
-        'name must be a string',
-      ],
-      error: 'Bad Request',
-    });
-  });
-
   let formId = '';
 
   describe('form creation and fetching', () => {
+    it('/form/create (POST)', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/form/create')
+        .set('Authorization', `Bearer ${suToken}`)
+        .send({ formData: {} })
+        .expect(400);
+      expect(response.body).toEqual(formFailMessage);
+    });
+
     it('/form/create (POST)', async () => {
       const token = await login(admin);
       const response = await request(app.getHttpServer())
@@ -290,7 +267,7 @@ describe('AppController (e2e)', () => {
     });
 
     it('/form/:id (GET)', async () => {
-      const response = await request(app.getHttpServer())
+      await request(app.getHttpServer())
         .get('/form/' + formId)
         .set('Authorization', `Bearer ${suToken}`)
         .expect(200);
@@ -336,6 +313,79 @@ describe('AppController (e2e)', () => {
         })
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
+    });
+  });
+
+  describe('rejected form proceeds', () => {
+    it('/form/create (POST)', async () => {
+      const token = await login(admin);
+      const response = await request(app.getHttpServer())
+        .post('/form/create')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          formData: formTestData,
+          name: 'Test Form 2',
+        } as InitializeFormDTO)
+        .expect(201);
+      formId = response.body._id;
+    });
+
+    it('/form (GET)', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/form')
+        .set('Authorization', `Bearer ${suToken}`)
+        .expect(200);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          forms: expect.arrayContaining([
+            expect.objectContaining({
+              name: 'Test Form',
+              type: 'MOD',
+              rejected: false,
+              rejectedReason: '',
+            }),
+          ]),
+        }),
+      );
+    });
+
+    it('/form/:id (GET)', async () => {
+      await request(app.getHttpServer())
+        .get('/form/' + formId)
+        .set('Authorization', `Bearer ${suToken}`)
+        .expect(200);
+    });
+
+    it('/form/:id (PUT)', async () => {
+      const token = await login(admin);
+      const response = await request(app.getHttpServer())
+        .put('/form/' + formId)
+        .send({
+          toUser: director._id,
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+      const form = response.body.form as Form;
+      const adminEmail = form.formState[0].from.email;
+      expect(adminEmail).toEqual(admin.email);
+      const directorEmail = form.formState[0].to!.email;
+      expect(directorEmail).toEqual(director.email);
+      const updatedByEmail = form.formState[0].updatedBy!.email;
+      expect(updatedByEmail).toEqual(admin.email);
+    });
+
+    it('/form/reject/:id (PUT)', async () => {
+      const token = await login(director);
+      const response = await request(app.getHttpServer())
+        .put('/form/reject/' + formId)
+        .send({
+          rejectedReason: 'Rejected! Reason here',
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+      const form = response.body.form;
+      expect(form.rejected).toEqual(true);
+      expect(form.rejectedReason).toEqual('Rejected! Reason here');
     });
   });
 

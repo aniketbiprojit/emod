@@ -50,7 +50,7 @@ export abstract class AbstractRepository<TDocument extends AbstractSchema> {
     update: UpdateQuery<TDocument>,
   ) {
     const document = await this.model.findOneAndUpdate(filterQuery, update, {
-      lean: true,
+      lean: false,
       new: true,
     });
 

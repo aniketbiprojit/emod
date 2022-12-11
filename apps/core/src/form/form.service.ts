@@ -68,16 +68,18 @@ export class FormService {
       throw new BadRequestException('Form already rejected');
     }
 
-    await this._formRepository.findOneAndUpdate(
-      {
-        _id: id,
-      },
-      {
-        $set: {
-          rejected: true,
-          rejectedReason,
+    return {
+      form: await this._formRepository.findOneAndUpdate(
+        {
+          _id: id,
         },
-      },
-    );
+        {
+          $set: {
+            rejected: true,
+            rejectedReason,
+          },
+        },
+      ),
+    };
   }
 }
