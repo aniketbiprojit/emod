@@ -1,14 +1,33 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { GetForm, RoleEnum } from '../../components/api-types';
-import { getName } from '../../components/utils';
+import {
+  Form as FormType,
+  GetForm,
+  RoleEnum,
+} from '../../components/api-types';
+import { getName, parseJwt } from '../../components/utils';
 
+type JWTPayload = {
+  email: string;
+  role: RoleEnum;
+  _id: string;
+};
 const Form: NextPage = () => {
   // get id from router
   const { query } = useRouter();
 
-  const result = useQuery<GetForm>('form-' + query.id, async () => {
+  const [userData, setUserData] = useState<JWTPayload>();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setUserData(parseJwt<JWTPayload>(token));
+    }
+  }, []);
+
+  const formDataResult = useQuery<GetForm>('form-' + query.id, async () => {
     if (query.id) {
       const response = await fetch(
         process.env.NEXT_PUBLIC_API_URL + '/form/' + query.id,
@@ -28,13 +47,12 @@ const Form: NextPage = () => {
       return await response.json();
     }
   });
-  const form = result?.data?.form;
-  const formData = result?.data?.formData;
-  console.log({ formData });
+  const form = formDataResult?.data?.form;
+  const formData = formDataResult?.data?.formData;
 
   return (
     <>
-      {result.isSuccess && result.data && form && (
+      {formDataResult.isSuccess && formDataResult.data && form && (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <div className="py-6">
@@ -59,7 +77,7 @@ const Form: NextPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {result.data && (
+                  {formDataResult.data && (
                     <>
                       <tr className="bg-white border-b">
                         <th
@@ -72,7 +90,7 @@ const Form: NextPage = () => {
                           {form.formState[0].from.email}
                         </td>
                         <td className="py-4 px-6">
-                          {form.formState.at(-2)?.to?.email}
+                          {getCurrentApproval(form)}
                         </td>
                         <td className="py-4 px-6">
                           {form.rejected === true
@@ -152,8 +170,25 @@ const Form: NextPage = () => {
           {/* <div className="text-bold text-2xl"></div> */}
         </>
       )}
+
+      {form &&
+        form.rejected === false &&
+        getCurrentApproval(form) === userData?.email && (
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="py-6">
+              <h1 className="text-2xl font-bold mt-10">Update Status</h1>
+              Approve?
+              <br />
+              Reject?
+            </div>
+          </div>
+        )}
     </>
   );
 };
 
 export default Form;
+
+function getCurrentApproval(form: FormType) {
+  return form.formState.at(-2)?.to?.email;
+}
