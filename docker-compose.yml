@@ -3,13 +3,12 @@ version: '3'
 services:
   frontend:
     build:
-      context: .
-      dockerfile: ./frontend/Dockerfile
+      context: ./frontend
       target: development
     command: npm start
     container_name: emod-frontend
-    # depends_on:
-    #   - core
+    depends_on:
+      - core
     ports:
       - '3000:3000'
     volumes:

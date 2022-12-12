@@ -1,16 +1,18 @@
 FROM node:18-alpine as development
 
-WORKDIR /usr/src/app/frontend
+RUN mkdir -p /usr/src/app
+
+WORKDIR /usr/src/app
 
 ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 
-COPY frontend/package.json /usr/src/app/frontend
+COPY package.json .
 
 RUN npm install -g pnpm
 
 RUN pnpm install
 
-ADD frontend /usr/src/app/frontend
+COPY . .
 
 RUN yarn build
