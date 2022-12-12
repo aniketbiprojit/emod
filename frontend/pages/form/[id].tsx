@@ -82,7 +82,12 @@ const Form: NextPage = () => {
   );
   const form = formDataQuery?.data?.form;
   const formData = formDataQuery?.data?.formData;
+  const { push } = useRouter();
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) push('/login');
+  }, []);
   const canBeUpdated =
     form &&
     form?.rejected === false &&
@@ -181,7 +186,7 @@ const Form: NextPage = () => {
                 </tbody>
               </table>
 
-              <h1 className="text-2xl font-bold mt-10">MoD</h1>
+              <h1 className="text-2xl font-bold mt-8 pb-4">MoD</h1>
 
               {formData && (
                 <>
@@ -235,16 +240,31 @@ const Form: NextPage = () => {
                   </table>
                 </>
               )}
+
+              <h1 className="text-2xl font-bold mt-8 pb-4">States</h1>
+              <table className="w-full text-sm text-left text-gray-500">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50"></thead>
+
+                {form?.formState &&
+                  form.formState.map((e) => {
+                    return (
+                      <tr className="px-4">
+                        <td className="py-4 px-6">
+                          {`${e.from.firstName} ${e.from.lastName} (${e.from.email})`}
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </table>
             </div>
           </div>
-          {/* <div className="text-bold text-2xl"></div> */}
         </>
       )}
 
       {canBeUpdated && users && users.length > 0 && (
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="py-6">
-            <h1 className="text-2xl font-bold mt-10">Update Status</h1>
+            <h1 className="text-2xl font-bold mt-10">Approve</h1>
 
             <DropDown
               data={users.map((e) => {
@@ -293,6 +313,7 @@ const Form: NextPage = () => {
             {userData.role !== RoleEnum.AdminOfficer && (
               <>
                 {' '}
+                <h1 className="text-2xl font-bold mt-8 pb-4">Reject</h1>
                 <textarea
                   onChange={(e) => {
                     setRejectedReason(e.target.value);

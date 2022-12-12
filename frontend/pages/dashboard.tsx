@@ -1,3 +1,5 @@
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { Form, RoleEnum } from '../components/api-types';
 
@@ -12,6 +14,13 @@ export default function Dashboard() {
     });
     return await response.json();
   });
+
+  const { push } = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) push('/login');
+  }, []);
 
   return (
     <>

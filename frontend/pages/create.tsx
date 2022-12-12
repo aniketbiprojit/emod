@@ -49,6 +49,11 @@ const CreateAnEMod: NextPage = () => {
     push('/form/' + _id);
   });
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) push('/login');
+  }, []);
+
   const { push } = useRouter();
   return (
     <>
