@@ -42,7 +42,7 @@ export class FormController {
   }
 
   @Get('/:id')
-  @UseGuards(AuthGuard, CanUpdateFormGuard)
+  @UseGuards(AuthGuard)
   @MongooseClassSerializerInterceptor(GetFormDTO)
   async getById(@Param('id') id: string) {
     return await this._formService.getFormById(id);

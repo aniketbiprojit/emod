@@ -5,20 +5,23 @@ import { useQuery } from 'react-query';
 import {
   Form as FormType,
   GetForm,
+  JWTPayload,
   RoleEnum,
+  User,
 } from '../../components/api-types';
+import DropDown from '../../components/DropDown';
 import { getName, parseJwt } from '../../components/utils';
 
-type JWTPayload = {
-  email: string;
-  role: RoleEnum;
-  _id: string;
-};
 const Form: NextPage = () => {
   // get id from router
   const { query } = useRouter();
 
+  const [nextUserRole, setUserRole] = useState<RoleEnum>();
+  const [users, setUsers] = useState<User[]>([]);
+  const [activeUser, setActiveUser] = useState<User>();
+
   const [userData, setUserData] = useState<JWTPayload>();
+  const [rejectedReason, setRejectedReason] = useState<string>('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -27,7 +30,7 @@ const Form: NextPage = () => {
     }
   }, []);
 
-  const formDataResult = useQuery<GetForm>('form-' + query.id, async () => {
+  const formDataQuery = useQuery<GetForm>('form-' + query.id, async () => {
     if (query.id) {
       const response = await fetch(
         process.env.NEXT_PUBLIC_API_URL + '/form/' + query.id,
@@ -47,12 +50,77 @@ const Form: NextPage = () => {
       return await response.json();
     }
   });
-  const form = formDataResult?.data?.form;
-  const formData = formDataResult?.data?.formData;
 
+  const fetchUserQuery = useQuery<User[]>(
+    'form-' + nextUserRole,
+    async () => {
+      if (nextUserRole) {
+        const response = await fetch(
+          process.env.NEXT_PUBLIC_API_URL + '/user/users?role=' + nextUserRole,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + localStorage.getItem('token'),
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch');
+        }
+
+        return await response.json();
+      }
+      return;
+    },
+    {
+      onSuccess: (data) => {
+        setUsers(data);
+      },
+    },
+  );
+  const form = formDataQuery?.data?.form;
+  const formData = formDataQuery?.data?.formData;
+
+  const canBeUpdated =
+    form &&
+    form?.rejected === false &&
+    userData &&
+    (userData.role === RoleEnum.SuperAdmin ||
+      getCurrentApproval(form) === userData?.email ||
+      (getCurrentApproval(form) === undefined &&
+        form.formState[0].from.email === userData.email)) &&
+    getCurrentRole(form) !== RoleEnum.VC;
+
+  useEffect(() => {
+    if (canBeUpdated && form) {
+      const role = getCurrentRole(form);
+      if (role) {
+        const roleKeys = Object.keys(RoleEnum);
+        // next role
+        const nextRole = roleKeys.at(roleKeys.indexOf(role) + 1);
+        if (nextRole) {
+          setUserRole(nextRole as RoleEnum);
+          fetchUserQuery.refetch();
+        }
+      } else {
+        if (form.formState[0].from.email === userData.email) {
+          const roleKeys = Object.keys(RoleEnum);
+
+          const nextRole = roleKeys.at(roleKeys.indexOf(userData.role) + 1);
+          console.log({ nextRole });
+          if (nextRole) {
+            setUserRole(nextRole as RoleEnum);
+            fetchUserQuery.refetch();
+          }
+        }
+      }
+    }
+  }, [canBeUpdated]);
   return (
     <>
-      {formDataResult.isSuccess && formDataResult.data && form && (
+      {formDataQuery.isSuccess && formDataQuery.data && form && (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <div className="py-6">
@@ -77,7 +145,7 @@ const Form: NextPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {formDataResult.data && (
+                  {formDataQuery.data && (
                     <>
                       <tr className="bg-white border-b">
                         <th
@@ -125,40 +193,42 @@ const Form: NextPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {Object.keys(formData).map((e) => {
+                      {Object.keys(formData).map((e, idx) => {
                         if (e !== 'otherFields')
                           return (
-                            <>
-                              <tr className="bg-white border-b">
-                                <th
-                                  scope="row"
-                                  className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap "
-                                >
-                                  {getName(e)}
-                                </th>
-                                <td className="py-4 px-6">
-                                  {(formData as any)[e]}
-                                </td>
-                              </tr>
-                            </>
+                            <tr
+                              key={`${e}-${idx}`}
+                              className="bg-white border-b"
+                            >
+                              <th
+                                scope="row"
+                                className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap "
+                              >
+                                {getName(e)}
+                              </th>
+                              <td className="py-4 px-6">
+                                {(formData as any)[e]}
+                              </td>
+                            </tr>
                           );
                       })}
                       {formData?.otherFields &&
-                        Object.keys(formData.otherFields).map((e) => {
+                        Object.keys(formData.otherFields).map((e, idx) => {
                           return (
-                            <>
-                              <tr className="bg-white border-b">
-                                <th
-                                  scope="row"
-                                  className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap "
-                                >
-                                  {getName(e)} (Other)
-                                </th>
-                                <td className="py-4 px-6">
-                                  {(formData.otherFields as any)[e]}
-                                </td>
-                              </tr>
-                            </>
+                            <tr
+                              key={`${e}-${idx}`}
+                              className="bg-white border-b"
+                            >
+                              <th
+                                scope="row"
+                                className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap "
+                              >
+                                {getName(e)} (Other)
+                              </th>
+                              <td className="py-4 px-6">
+                                {(formData.otherFields as any)[e]}
+                              </td>
+                            </tr>
                           );
                         })}
                     </tbody>
@@ -171,29 +241,105 @@ const Form: NextPage = () => {
         </>
       )}
 
-      {form &&
-        form.rejected === false &&
-        userData &&
-        userData.role !== RoleEnum.VC &&
-        (userData.role === RoleEnum.SuperAdmin ||
-          getCurrentApproval(form) === userData?.email) && (
-          <div className="mx-auto max-w-7xl px-4 sm:px-6">
-            <div className="py-6">
-              <h1 className="text-2xl font-bold mt-10">Update Status</h1>
-              <button className="group my-2 relative flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white hover:bg-green-700 focus:outline-none">
-                Submit To
-              </button>
-              <button className="group  relative flex justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white hover:bg-red-700 focus:outline-none">
-                Reject MoD
-              </button>
-            </div>
+      {canBeUpdated && users && users.length > 0 && (
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="py-6">
+            <h1 className="text-2xl font-bold mt-10">Update Status</h1>
+
+            <DropDown
+              data={users.map((e) => {
+                return {
+                  value: `${e.firstName} ${e.lastName} (${e.email})`,
+                  key: e.email,
+                };
+              })}
+              active={
+                activeUser
+                  ? {
+                      value: `${activeUser.firstName} ${activeUser.lastName} (${activeUser.email})`,
+                      key: activeUser.email,
+                    }
+                  : undefined
+              }
+              setActive={(key: string) => {
+                setActiveUser(users.find((e) => e.email === key));
+              }}
+            />
+            <button
+              onClick={async () => {
+                if (activeUser) {
+                  await fetch(
+                    process.env.NEXT_PUBLIC_API_URL + '/form/' + query.id,
+                    {
+                      body: JSON.stringify({ toUser: activeUser._id }),
+                      method: 'PUT',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        Authorization:
+                          'Bearer ' + localStorage.getItem('token'),
+                      },
+                    },
+                  );
+
+                  formDataQuery.refetch().then(() => {
+                    fetchUserQuery.refetch();
+                  });
+                }
+              }}
+              className="group my-2 relative flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white hover:bg-green-700 focus:outline-none"
+            >
+              Submit
+            </button>
+            {userData.role !== RoleEnum.AdminOfficer && (
+              <>
+                {' '}
+                <textarea
+                  onChange={(e) => {
+                    setRejectedReason(e.target.value);
+                  }}
+                  id="message"
+                  rows={4}
+                  required={true}
+                  className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 t-dark:bg-gray-700 t-dark:border-gray-600 t-dark:placeholder-gray-400 t-dark:text-white t-dark:focus:ring-blue-500 t-dark:focus:border-blue-500"
+                  placeholder="Write your thoughts here..."
+                ></textarea>
+                <button
+                  onSubmit={async () => {
+                    await fetch(
+                      process.env.NEXT_PUBLIC_API_URL +
+                        '/form/reject' +
+                        query.id,
+                      {
+                        body: JSON.stringify({
+                          rejectedReason,
+                        }),
+                        method: 'PUT',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          Authorization:
+                            'Bearer ' + localStorage.getItem('token'),
+                        },
+                      },
+                    );
+                  }}
+                  className="group  relative flex justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white hover:bg-red-700 focus:outline-none"
+                >
+                  Reject MoD
+                </button>
+              </>
+            )}
           </div>
-        )}
+        </div>
+      )}
     </>
   );
 };
 
 export default Form;
+
+function getCurrentRole(form: FormType) {
+  return form.formState.at(-2)?.to?.role as RoleEnum | undefined;
+}
 
 function getCurrentApproval(form: FormType) {
   return form.formState.at(-2)?.to?.email;

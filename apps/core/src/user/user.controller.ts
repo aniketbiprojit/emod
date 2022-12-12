@@ -36,7 +36,7 @@ export class UserController {
 
   @Get('users')
   @UseGuards(AuthGuard)
-  @MongooseClassSerializerInterceptor(CreateUserDTO)
+  @MongooseClassSerializerInterceptor(GetUserDTO)
   async users(
     @Query()
     query: UserQueryDTO,

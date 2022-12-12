@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useContext, useEffect, useState } from 'react';
 import { Popover, Transition } from '@headlessui/react';
 import {
   Bars3Icon,
@@ -10,6 +10,9 @@ import {
 } from '@heroicons/react/24/outline';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
+import { JWTPayload, RoleEnum } from './api-types';
+import { parseJwt } from './utils';
+import { useRouter } from 'next/router';
 
 const solutions = [
   {
@@ -45,11 +48,20 @@ function classNames(...classes: string[]) {
 
 export const Header: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(false);
+
+  const [userData, setUserData] = useState<JWTPayload>();
+
+  const { pathname } = useRouter();
   useEffect(() => {
-    if (localStorage?.getItem('token')) {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setUserData(parseJwt<JWTPayload>(token));
       setLoggedIn(true);
+    } else {
+      setLoggedIn(false);
+      setUserData(undefined);
     }
-  }, []);
+  }, [pathname]);
 
   return (
     <Popover className="relative bg-white">
@@ -67,7 +79,16 @@ export const Header: React.FC = () => {
               <Bars3Icon className="h-6 w-6" aria-hidden="true" />
             </Popover.Button>
           </div>
+
           <div className="hidden items-center justify-end md:flex md:flex-1 lg:w-0">
+            {loggedIn && userData?.role === RoleEnum.AdminOfficer && (
+              <Link
+                href={'create'}
+                className="whitespace-nowrap px-8 text-base font-medium text-gray-500 hover:text-gray-900"
+              >
+                Create EMoD
+              </Link>
+            )}
             <Link
               href={loggedIn ? '/logout' : '/login'}
               className="whitespace-nowrap text-base font-medium text-gray-500 hover:text-gray-900"

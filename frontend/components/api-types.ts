@@ -62,3 +62,39 @@ export abstract class GetForm {
 
   formData!: ModDTO;
 }
+
+export type JWTPayload = {
+  email: string;
+  role: RoleEnum;
+  _id: string;
+};
+
+export const formTestData = {
+  allocationAmount: 'number',
+  budgetCode: 'text',
+  amountSpent: 'number',
+  title: 'text',
+  description: `textarea`,
+  serviceCost: 'number',
+  serviceName: 'text',
+  sourceOfFunding: 'text',
+};
+
+export const formDefaultData = {
+  allocationAmount: 10_000,
+  budgetCode: 'text',
+  amountSpent: 10_000,
+  title: 'text',
+  description: `textarea added description`,
+  serviceCost: 20_000,
+  serviceName: 'text',
+  sourceOfFunding: 'text',
+  // allocationAmount: '',
+  // budgetCode: '',
+  // amountSpent: '',
+  // title: '',
+  // description: '',
+  // serviceCost: '',
+  // serviceName: '',
+  // sourceOfFunding: '',
+};
