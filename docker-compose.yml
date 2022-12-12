@@ -8,8 +8,8 @@ services:
       target: development
     command: npm start
     container_name: emod-frontend
-    depends_on:
-      - emod-core
+    # depends_on:
+    #   - core
     ports:
       - '3000:3000'
     volumes:
