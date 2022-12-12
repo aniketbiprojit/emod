@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 
-COPY frontepackage.json .
+COPY package.json .
 
 RUN npm install -g pnpm
 
