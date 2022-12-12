@@ -15,6 +15,7 @@ export class AbstractSchema {
   _id: Types.ObjectId;
 
   @Prop()
+  @Expose()
   createdAt: Date;
 
   @Prop()

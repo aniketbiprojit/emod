@@ -6,7 +6,6 @@ services:
     restart: always
     container_name: emod-mongo
     environment:
-      - NODE_ENV=development
       - TZ=Asia/Kolkata
     ports:
       - '37017:27017'
@@ -38,7 +37,6 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     environment:
-      - NODE_ENV=development
       - TZ=Asia/Kolkata
       - USE_DOCKER=true
     restart: always

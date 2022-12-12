@@ -11,6 +11,8 @@ async function bootstrap() {
   const port = configService.get<number>(CoreEnv.PORT);
   console.log(`Listening on port ${port}...`);
 
+  const NODE_ENV = configService.get<string>(CoreEnv.NODE_ENV);
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -19,6 +21,11 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+
+  if (NODE_ENV !== 'production') {
+    app.enableCors();
+  }
+
   await app.init();
 
   await app.listen(port);
