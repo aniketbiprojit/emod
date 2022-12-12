@@ -4,7 +4,7 @@ export const getName = (text: string) => {
   return finalResult;
 };
 
-export function parseJwt<T extends unknown>(token: string) {
+export function parseJwt<T>(token: string) {
   const base64Url = token.split('.')[1];
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
   const jsonPayload = decodeURIComponent(

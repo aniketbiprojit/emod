@@ -248,7 +248,7 @@ const Form: NextPage = () => {
                 {form?.formState &&
                   form.formState.map((e) => {
                     return (
-                      <tr className="px-4">
+                      <tr key={e._id} className="px-4">
                         <td className="py-4 px-6">
                           {`${e.from.firstName} ${e.from.lastName} (${e.from.email})`}
                         </td>
