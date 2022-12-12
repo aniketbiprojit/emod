@@ -36,3 +36,29 @@ export abstract class User extends AbstractSchema {
   email!: string;
   role!: RoleEnum;
 }
+
+export class ModDTO {
+  budgetCode!: string;
+
+  allocationAmount!: number;
+
+  amountSpent!: number;
+
+  title!: string;
+
+  description?: string;
+
+  serviceName!: string;
+
+  serviceCost!: number;
+
+  sourceOfFunding!: string;
+
+  otherFields?: Record<string, any>;
+}
+
+export abstract class GetForm {
+  form!: Form;
+
+  formData!: ModDTO;
+}

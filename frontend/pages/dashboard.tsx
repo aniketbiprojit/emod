@@ -27,13 +27,16 @@ export default function Dashboard() {
                   Started
                 </th>
                 <th scope="col" className="py-3 px-6">
-                  Last Approved
+                  Next Approval
                 </th>
                 <th scope="col" className="py-3 px-6">
                   Status
                 </th>
                 <th scope="col" className="py-3 px-6">
                   Created At
+                </th>
+                <th scope="col" className="py-3 px-6">
+                  View
                 </th>
               </tr>
             </thead>
@@ -68,6 +71,14 @@ export default function Dashboard() {
                           month: 'long',
                           day: 'numeric',
                         })}
+                      </td>
+                      <td className="py-4 px-6">
+                        <a
+                          href={`/form/${form._id}`}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          View
+                        </a>
                       </td>
                     </tr>
                   </>

@@ -30,10 +30,11 @@ describe('AppController (e2e)', () => {
           load: [
             () => ({
               [CoreEnv.PORT]: 3000,
-              [CoreEnv.MONGO_URI]: 'mongodb://localhost:27017/e-mod-test',
+              [CoreEnv.MONGO_URI]: 'mongodb://127.0.0.1:27017/emod-core-db',
               [CoreEnv.JWT_SECRET]: 'secret',
               [CoreEnv.NODE_ENV]: 'testing',
-              [CoreEnv.STORAGE_LOCATION]: tmpdir(),
+              [CoreEnv.STORAGE_LOCATION]:
+                '/Users/aniketchowdhury/Work/sastra/e-mod/storage',
               SU_FIRST_NAME: 'Super',
               SU_LAST_NAME: 'Admin',
               SU_EMAIL: 'su@mail.com',
