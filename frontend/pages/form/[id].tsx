@@ -325,10 +325,10 @@ const Form: NextPage = () => {
                   placeholder="Write your thoughts here..."
                 ></textarea>
                 <button
-                  onSubmit={async () => {
+                  onClick={async () => {
                     await fetch(
                       process.env.NEXT_PUBLIC_API_URL +
-                        '/form/reject' +
+                        '/form/reject/' +
                         query.id,
                       {
                         body: JSON.stringify({
