@@ -12,11 +12,11 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - .:/usr/src/app
       - /usr/src/app/node_modules
     environment:
       - TZ=Asia/Kolkata
       - USE_DOCKER=true
+      - NODE_ENV=production
     restart: always
   mongo:
     image: mongo
