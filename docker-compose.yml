@@ -1,6 +1,24 @@
 version: '3'
 
 services:
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+      target: development
+    command: npm start
+    container_name: emod-frontend
+    depends_on:
+      - emod-core
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - TZ=Asia/Kolkata
+      - USE_DOCKER=true
+    restart: always
   mongo:
     image: mongo
     restart: always
