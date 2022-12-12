@@ -173,15 +173,18 @@ const Form: NextPage = () => {
 
       {form &&
         form.rejected === false &&
-        getCurrentApproval(form) === userData?.email && (
+        userData &&
+        userData.role !== RoleEnum.VC &&
+        (userData.role === RoleEnum.SuperAdmin ||
+          getCurrentApproval(form) === userData?.email) && (
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <div className="py-6">
               <h1 className="text-2xl font-bold mt-10">Update Status</h1>
               <button className="group my-2 relative flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white hover:bg-green-700 focus:outline-none">
-                Approve
+                Submit To
               </button>
               <button className="group  relative flex justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white hover:bg-red-700 focus:outline-none">
-                Reject
+                Reject MoD
               </button>
             </div>
           </div>
